@@ -16,7 +16,6 @@ bot = commands.Bot(command_prefix= get_prefixes, description="Not So Smart Contr
 
 
 
-
 cog_files = ['commands.contract','commands.settings']
 
 for cog_file in cog_files: 

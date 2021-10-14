@@ -95,3 +95,12 @@ def get_addr_by_prefix(client_id,addr):
     return None
         
         
+
+def loading_embed(address,function,args):
+    embed= embedGenerator(title="Contract Function Lookup",description="Calling Function")
+    embed.set_author(name="Status :Updating",icon_url="https://www.costcoauto.com/save/images/ajax-loading.gif")
+    embed.add_field(name="Address",value=f"`{address}`",inline=True)
+    embed.add_field(name="Function",value=f"`{function}`",inline=True)
+    embed.add_field(name="Args",value=f"`{str(args)}`",inline=True)
+    embed.add_field(name="OUTPUT",value=f"`Processing...`",inline=True)
+    return embed

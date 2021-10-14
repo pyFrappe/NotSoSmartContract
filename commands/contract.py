@@ -1,9 +1,11 @@
+from os import name
 import discord
 from discord import embeds
 from discord.ext import commands
 from NSSC.contract.contract import NSSC
-from .utils import del_addr, errorEmbed,embedGenerator, get_addr, get_addr_by_prefix, get_prefixes, set_addr
+from .utils import del_addr, errorEmbed,embedGenerator, get_addr, get_addr_by_prefix, get_prefixes, loading_embed, set_addr
 import random
+import asyncio
 colors =["AQUA","DARK_AQUA","GREEN","DARK_GREEN","BLUE","DARK_BLUE","PURPLE","DARK_PURPLE","LUMINOUS_VIVID_PINK","DARK_VIVID_PINK","GOLD","DARK_GOLD","ORANGE","DARK_ORANGE","RED","DARK_RED","GREY","DARK_GREY","DARKER_GREY","LIGHT_GREY","NAVY","DARK_NAVY","YELLOW"]
 
 
@@ -22,17 +24,16 @@ class contracts(commands.Cog,description="Commands Related to Contract Interatio
 
             address = long_adr
         args = list(args)
-        try:
-            data=self.nssc.call_functions(address=address,funcname=func_name,args=args)
-        except Exception as e:
-            await ctx.send(embed=errorEmbed(e))
-            return
+        address= self.nssc.actual_address(address)
+        initial_message=await ctx.send(embed=loading_embed(address,func_name,str(args)))
+        data=self.nssc.call_functions(address=address,funcname=func_name,args=args)
         embed= embedGenerator(title="Contract Function Lookup",description="Calling Function")
+        embed.set_author(name="Status : Completed",icon_url="https://w7.pngwing.com/pngs/120/161/png-transparent-white-and-green-check-logo-check-mark-emoji-computer-icons-emoticon-tick-angle-text-rectangle.png")
         embed.add_field(name="Address",value=f"`{address}`",inline=True)
         embed.add_field(name="Function",value=f"`{func_name}`",inline=True)
         embed.add_field(name="Args",value=f"`{str(args)}`",inline=True)
         embed.add_field(name="OUTPUT",value=f"`{data}`",inline=True)
-        await ctx.send(embed=embed)
+        await initial_message.edit(embed=embed)
     
     @commands.command(name="save",brief='save [address] [short_prefix]\n[*]Save Long Eth Address As Short Prefix') # Your command decorator.
     async def save(self, ctx,Address,Short_Prefix): 

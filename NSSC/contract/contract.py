@@ -51,8 +51,15 @@ class NSSC:
             raise Exception("Function Doesnt Exist")
         return to_return
     
+    def actual_address(self,address):
+        try:
+            return (Web3.toChecksumAddress(address))
+        except Exception:
+            raise Exception("Unable to Verify Address")
+
     def call_functions(self,address,funcname,args=[]):
-        self.address =(Web3.toChecksumAddress(address))
+        self.address = address
+
         abi = self.get_abi(self.address)
         
         func_details = self.get_function_details(abi,funcname)
