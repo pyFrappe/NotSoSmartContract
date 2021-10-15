@@ -75,7 +75,7 @@ class contracts(commands.Cog,description="Commands Related to Contract Interatio
         user_id = ctx.message.author.id
         long_adr = get_addr_by_prefix(str(user_id),address)
         if long_adr:
-            address = list(long_adr)[0]
+            address = long_adr
         embed= embedGenerator(title="Delete Saved Addresses",description="Delete Addresses")
         de = del_addr(str(user_id),address)
         if de ==None:

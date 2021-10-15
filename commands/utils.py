@@ -87,7 +87,9 @@ def del_addr(user_id,address):
     existing_data = json.load(open('addr.json')) #load the json as prefixes
     
     if datas:
-        if address in list(datas):
+        print(list(datas),address)
+        if address in list(datas.keys()):
+            print("FOUND")
             datas.pop(address, None)
             existing_data[user_id] = datas
             with open('addr.json', 'w') as f: #write in the prefix.json "message.guild.id": "bl!"
