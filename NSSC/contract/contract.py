@@ -1,4 +1,6 @@
+from ast import literal_eval
 from logging import raiseExceptions
+from discord.utils import parse_time
 import requests
 import os
 from dotenv import load_dotenv
@@ -58,21 +60,40 @@ class NSSC:
 
     def call_functions(self,address,funcname,args=[]):
         self.address = address
-
+        
+        
         abi = self.get_abi(self.address)
         
         func_details = self.get_function_details(abi,funcname)
         if func_details["stateMutability"] != "view":
             raise Exception("Cannot Execute Write Functions")
 
-        if len(func_details["inputs"]) != len(args):
-            raise Exception("Invalid Number of Arguments")
+        # if len(func_details["inputs"]) != len(args):
+        #     raise Exception("Invalid Number of Arguments")
 
         self.contract  = self.web3.eth.contract(address=self.address, abi=abi)
         if not args:
             string = f"self.contract.functions.{funcname}().call()"
         else:
-            string =f"self.contract.functions.{funcname}('{','.join(args)}').call()"
+            """
+                This is actually Weird , i dont know what i did,there is definetily a nicer way to do this.
+                This iteration does ',' join function without changing the data type 
+
+
+            """
+
+            all_args=''
+            for arg in args:
+                if all_args != '':
+                    all_args+=','
+                if type(arg) != str:
+                    all_args+=str(arg)
+                else:
+                    to_add = f"'{arg}'"
+                    all_args+=to_add
+                
+            string =f"self.contract.functions.{funcname}({all_args}).call()"
+        print(string)
         return eval(string)
 
     def owner(self,address):

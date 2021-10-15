@@ -32,6 +32,8 @@ class settings(commands.Cog,description="Chnage Prefix , Manage Bot and Many Mor
     @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
         """A global error handler cog."""
+        if "is not found" in (str(error)):
+            return
         embed=errorEmbed(error)
         
         await ctx.send(embed=embed)

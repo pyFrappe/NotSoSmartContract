@@ -5,6 +5,8 @@ import random
 import json
 import os
 from web3 import Web3
+from ast import literal_eval
+
 footer ={
     "text":"Powered By NSSC | https://discord.gg/ZqAjfm5Zeb "
 }
@@ -111,4 +113,13 @@ def get_addr_by_prefix(client_id,addr):
     return None
         
         
+
+def data_type_fixer(args):
+    argu=[]
+    for arg in list(args):
+        if len(arg) !=42:
+            argu.append(literal_eval(arg))
+        else:
+            argu.append(arg)
+    return argu
 

@@ -1,11 +1,12 @@
-from os import name
+from os import name, path
 import discord
 from discord import embeds
 from discord.ext import commands
 from NSSC.contract.contract import NSSC
-from .utils import del_addr, errorEmbed,embedGenerator, get_addr, get_addr_by_prefix, get_prefixes, loadingEmbed, set_addr, validate_address
+from .utils import data_type_fixer, del_addr, errorEmbed,embedGenerator, get_addr, get_addr_by_prefix, get_prefixes, loadingEmbed, set_addr, validate_address
 import random
 import asyncio
+from ast import literal_eval
 colors =["AQUA","DARK_AQUA","GREEN","DARK_GREEN","BLUE","DARK_BLUE","PURPLE","DARK_PURPLE","LUMINOUS_VIVID_PINK","DARK_VIVID_PINK","GOLD","DARK_GOLD","ORANGE","DARK_ORANGE","RED","DARK_RED","GREY","DARK_GREY","DARKER_GREY","LIGHT_GREY","NAVY","DARK_NAVY","YELLOW"]
 
 
@@ -23,7 +24,8 @@ class contracts(commands.Cog,description="Commands Related to Contract Interatio
         if long_adr:
 
             address = long_adr
-        args = list(args)
+        
+        args = data_type_fixer(list(args))
         address= validate_address(address)
         #LOADING EMBED
         loading_embed = loadingEmbed("Contract Calling Function","Communicating with contract")
@@ -32,9 +34,8 @@ class contracts(commands.Cog,description="Commands Related to Contract Interatio
         loading_embed.add_field(name="Args",value=f"`{str(args)}`",inline=True)
         loading_embed.add_field(name="OUTPUT",value=f"`Processing...`",inline=True)
         initial_message=await ctx.send(embed=loading_embed)
-
         data=self.nssc.call_functions(address=address,funcname=func_name,args=args)
-
+        
         #ACTUAL EMBED
         embed= embedGenerator(title="Contract Function Lookup",description="Calling Function")
         embed.set_author(name="Status : Completed",icon_url="https://w7.pngwing.com/pngs/120/161/png-transparent-white-and-green-check-logo-check-mark-emoji-computer-icons-emoticon-tick-angle-text-rectangle.png")
