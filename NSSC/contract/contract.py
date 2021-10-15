@@ -6,15 +6,15 @@ from etherscan import Etherscan
 import json
 from web3 import Web3
 from functools import lru_cache
-
+from ..configs import *
 
 load_dotenv()
 
 class NSSC:
     def __init__(self) -> None:
-        self.eth = Etherscan(os.environ['etherscan_api']) 
-        self.infura_key = os.environ['infura_key']
-        self.web3 = Web3(Web3.HTTPProvider(f"https://mainnet.infura.io/v3/{self.infura_key}"))
+        self.eth = eth
+        self.infura_key = infura_key
+        self.web3 = web3
         self.rinkeby = ''
         pass
     
@@ -24,8 +24,7 @@ class NSSC:
        
         return json.loads(data)
     
-    def validate_address(self,addr):
-        return (Web3.toChecksumAddress(addr))
+    
     
     def read_functions(self,abi):
         read_functions =[]
@@ -77,9 +76,8 @@ class NSSC:
         return eval(string)
 
     def owner(self,address):
-        self.address =(Web3.toChecksumAddress(address))
-        abi = self.get_abi(self.address)
-        self.contract  = self.web3.eth.contract(address=self.address, abi=abi)
+        abi = self.get_abi(address)
+        self.contract  = self.web3.eth.contract(address=address, abi=abi)
         return self.contract.functions.owner().call()
         
 

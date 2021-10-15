@@ -4,7 +4,7 @@ from discord import embeds
 import random
 import json
 import os
-
+from web3 import Web3
 footer ={
     "text":"Powered By NSSC | https://discord.gg/ZqAjfm5Zeb "
 }
@@ -24,12 +24,26 @@ def embedGenerator(title,description):
     embed.set_footer(text=footer["text"])
     return embed
 
+def loadingEmbed(title,description):
+    randcolor = random.randint(0, 0xffffff)
+    embed= embedGenerator(title=title,description=description)
+    embed.set_author(name="Status :Updating",icon_url="https://www.costcoauto.com/save/images/ajax-loading.gif")
+    return embed
+
+def validate_address(addr):
+    try:
+        return (Web3.toChecksumAddress(addr))
+    except Exception:
+        raise Exception("Invalid Address !")
 
 def get_prefixes(client,message):
     if os.path.isfile('prefixes.json'):
         with open('prefixes.json', 'r') as f: ##we open and read the prefixes.json, assuming it's in the same file
             prefixes = json.load(f) #load the json as prefixes
-        return prefixes[str(message.guild.id)] #recieve the prefix for the guild id given
+        try:
+            return prefixes[str(message.guild.id)] #recieve the prefix for the guild id given
+        except AttributeError:
+            return ">"
     with open("prefixes.json",'w')as f:
         json.dump({"897093479887405056":">"},f,indent=4)
 
@@ -96,11 +110,3 @@ def get_addr_by_prefix(client_id,addr):
         
         
 
-def loading_embed(address,function,args):
-    embed= embedGenerator(title="Contract Function Lookup",description="Calling Function")
-    embed.set_author(name="Status :Updating",icon_url="https://www.costcoauto.com/save/images/ajax-loading.gif")
-    embed.add_field(name="Address",value=f"`{address}`",inline=True)
-    embed.add_field(name="Function",value=f"`{function}`",inline=True)
-    embed.add_field(name="Args",value=f"`{str(args)}`",inline=True)
-    embed.add_field(name="OUTPUT",value=f"`Processing...`",inline=True)
-    return embed
