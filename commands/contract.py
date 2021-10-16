@@ -3,10 +3,11 @@ import discord
 from discord import embeds
 from discord.ext import commands
 from NSSC.contract.contract import NSSC
-from .utils import data_type_fixer, del_addr, errorEmbed,embedGenerator, get_addr, get_addr_by_prefix, get_prefixes, loadingEmbed, set_addr, validate_address
+from .utils import  data_type_fixer, del_addr, divide_dict, errorEmbed,embedGenerator, get_addr, get_addr_by_prefix, get_prefixes, loadingEmbed, set_addr, validate_address
 import random
 import asyncio
 from ast import literal_eval
+
 colors =["AQUA","DARK_AQUA","GREEN","DARK_GREEN","BLUE","DARK_BLUE","PURPLE","DARK_PURPLE","LUMINOUS_VIVID_PINK","DARK_VIVID_PINK","GOLD","DARK_GOLD","ORANGE","DARK_ORANGE","RED","DARK_RED","GREY","DARK_GREY","DARKER_GREY","LIGHT_GREY","NAVY","DARK_NAVY","YELLOW"]
 
 
@@ -61,14 +62,58 @@ class contracts(commands.Cog,description="Commands Related to Contract Interatio
     async def saved(self, ctx): 
         user_id = ctx.message.author.id
         saved_prefixes = get_addr(str(user_id))
-        print(saved_prefixes)
+        """
+            Paginated Embeds For Saved Addresses, 
+            Each Embed should not have more than 6 addresses
+        """
         embed= embedGenerator(title="Saved Addresses",description="List of all the addresses")
-        if saved_prefixes:
+        chunked_pages=divide_dict(saved_prefixes,6)
+        if not saved_prefixes:
+            embed.add_field(name="No Addresses Saved",value=f"`Save Some Addreses By Using save [long_address] [short term]`")
+            await ctx.send(embed=embed)
+            return
+        elif len(saved_prefixes) < 6:
             for count,prefixes in enumerate(saved_prefixes):
                 embed.add_field(name=f"`[{count}]` {saved_prefixes[prefixes]} : `{prefixes}`",value=f"\u200b")
-        else:
-            embed.add_field(name="No Addresses Saved",value=f"`Save Some Addreses By Using save [long_address] [short term]`")
-        await ctx.send(embed=embed)
+            await ctx.send(embed=embed)
+            return
+        pages =[]
+        for chunks in chunked_pages:
+            embed= embedGenerator(title="Saved Addresses",description="List of all the addresses")
+            for count,prefixes in enumerate(chunks):
+                embed.add_field(name=f"`[{count}]` {saved_prefixes[prefixes]} : `{prefixes}`",value=f"\u200b")
+            pages.append(embed)
+        message = await ctx.send(embed = pages[0])
+
+        await message.add_reaction('◀')
+        await message.add_reaction('▶')
+
+
+        def check(reaction, user):
+            return user == ctx.author
+
+        i = 0
+        reaction = None
+
+        while True:
+            if str(reaction) == '◀':
+                if i > 0:
+                    i -= 1
+                    await message.edit(embed = pages[i])
+            elif str(reaction) == '▶':
+                if i < len(pages):
+                    i += 1
+                    try:
+                        await message.edit(embed = pages[i])
+                    except Exception:
+                        pass
+            try:
+                reaction, user = await self.client.wait_for('reaction_add', timeout = 30.0, check = check)
+                await message.remove_reaction(reaction, user)
+            except:
+                break
+
+        await message.clear_reactions()
     
     @commands.command(name="del",brief='Delete your saved addresses.') # Your command decorator.
     async def delete(self, ctx,address): 

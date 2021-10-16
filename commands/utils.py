@@ -123,3 +123,11 @@ def data_type_fixer(args):
             argu.append(arg)
     return argu
 
+
+from itertools import islice
+
+def divide_dict(data, SIZE=10000):
+    it = iter(data)
+    for i in range(0, len(data), SIZE):
+        yield {k:data[k] for k in islice(it, SIZE)}
+        
